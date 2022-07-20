@@ -1,35 +1,35 @@
-import React from "react";
-import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 //Component used to display the selected researcher
 
-class ShowArticle extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      authors: "",
-      abstract: "",
-      tags: "",
-      file: "",
-      journal: "",
-      year: "",
-      researchers: [],
-      articleAuthors:[],
-    };
-  }
+const ShowArticle= ()=> {
+ 
+  const [article, setArticle]=useState({
+    title: "",
+    authors: "",
+    abstract: "",
+    tags: "",
+    file: "",
+    journal: "",
+    year: "",
+    researchers:[''],
+   });
 
+   const [allResearchers, setAllResearchers]=useState<any[]>([]);
+   const articleAuthors:any[]=allResearchers.filter((author:any)=>article.researchers.includes(author._id));
+   const id=useParams();
+   console.log(id)
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  componentDidMount() {
-    const id = this.props.match.params.id;
+  const getArticle=(id:any)=> {
+
     console.log("RS= " + id);
     // Use of the get controllers through the axios API
     axios
       .get("http://localhost:5000/article/" + id)
-      .then((Response) => {
-        this.setState({
+      .then((Response) => 
+       setArticle({
           title: Response.data.title,
           authors: Response.data.authors,
           abstract: Response.data.abstract,
@@ -38,40 +38,42 @@ class ShowArticle extends React.Component {
           journal: Response.data.journal,
           year: Response.data.year,
           researchers: Response.data.researchers,
-        });
-
-        for (let researcher of this.state.researchers) {
-          axios
-            .get(
-              "http://localhost:5000/researcher/" + researcher
-            )
-            .then((Resp) => {
-              this.setState({
-                articleAuthors: [...this.state.articleAuthors, Resp.data],
-              });
-              console.log("element=" + Resp.data);
-            });
-        }
-
-      })
+        }))
       .catch((error) => {
         console.log(error);
       });
   }
 
-  render() {
-    const { title, authors, abstract, tags, file, journal, year, researchers, articleAuthors } = this.state;
+ const getResearchers=()=>{
+  axios
+  .get("http://localhost:5000/researchers/")
+  .then((Response) => {
+    setAllResearchers(Response.data);
+    console.log("element=" + Response.data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
+
+useEffect(()=>{
+  getArticle(id);
+},[id])
+
+useEffect(()=>{
+  getResearchers();
+},[])
 
     return (
       <main>
        
         <div className="row">
-          <h1 className="researcher-title">Details about {title} {' '} article </h1>
-          <p className="group-description col-12">{abstract}</p>
-          <p className="group-description col-12">{year} {' '} {journal}</p>
-          <p className="group-description col-12">{authors}</p>
-          <p className="group-description col-12">{tags}</p>
-          <p> <Link to={file!=="" ? file:"#"} download> Download</Link> </p>
+          <h1 className="researcher-title">Details about {article.title} {' '} article </h1>
+          <p className="group-description col-12">{article.abstract}</p>
+          <p className="group-description col-12">{article.year} {' '} {article.journal}</p>
+          <p className="group-description col-12">{articleAuthors}</p>
+          <p className="group-description col-12">{article.tags}</p>
+          <p> <Link to={article.file!=="" ? article.file:"#"} download> Download</Link> </p>
         </div>
 
         <div className="row">
@@ -106,7 +108,6 @@ class ShowArticle extends React.Component {
         </div>
       </main>
     );
-  }
 }
 
-export default withRouter(ShowArticle);
+export default ShowArticle;

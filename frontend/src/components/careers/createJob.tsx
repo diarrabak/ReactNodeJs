@@ -1,123 +1,35 @@
-import React from "react";
-import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Link,useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
-//Component used to display the list of all the groups
 
-class UpdateJob extends React.Component { 
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      description:"",
-      jobtype: "",
-      file: "",
-      year: "",
-      researchers: [],
-      allResearchers: [], //List of all users
-      selectedResearchers: [],
-    };
+// This component is used to create a new researcher and save to the database
+const CreateJob =()=> {
+  const history=useHistory();
+  const [job, setJob]=useState({
+    title: "",
+    description:"",
+    jobtype: "",
+    file: "",
+    year: "",
+    researchers: [''],
+  })
+   
+  const [allResearchers, setAllResearchers]=useState([]);
+  //method appending the form data to the researcher fields
 
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangeJobtype = this.onChangeJobtype.bind(this);
-    this.onChangeFile = this.onChangeFile.bind(this);
-    this.onChangeYear = this.onChangeYear.bind(this);
-    this.onChangeResearchers = this.onChangeResearchers.bind(this);
-  }
-
-  //When the component is active on the DOM
-  //The values pulled from database to fill the dropdown menu
-  componentDidMount() {
-    const id = this.props.match.params.id;
-    // const { match: { params } } = this.props;
-    //console.log("Params= "+ id);
-    // Use of the get controllers through the axios API
-    axios
-      .get("http://localhost:5000/job/" + id)
-      .then((Response) => {
-        this.setState({
-          title: Response.data.title,
-          description: Response.data.authors,
-          jobtype: Response.data.abstract,
-          file: Response.data.file,
-          year: Response.data.year,
-          researchers: Response.data.researchers,
-        });
-        //console.log('element='+this.state.currentgroup);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        this.setState({
-          allResearchers: Response.data,
-        });
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  }
-
-  //Function to update the select value
-  onChangeResearchers(e) {
-    this.setState({
-      selectedResearchers: Array.from(
-        e.target.selectedOptions,
-        (item) => item.value
-      ),
-    });
-    e.preventDefault();
-  }
-
-  onChangeTitle(e) {
-    this.setState({
-      title: e.target.value,
-    });
-  }
-
-  onChangeJobtype(e) {
-    this.setState({
-      jobtype: e.target.value,
-    });
-  }
-
-  onChangeDescription(e) {
-    this.setState({
-      description: e.target.value,
-    });
-  }
-
-  onChangeFile(e) {
-    this.setState({
-      file: e.target.value,
-    });
-  }
-
-  onChangeYear(e) {
-    this.setState({
-      year: e.target.value,
-    });
-  }
-
-  submitJob(event) {
-    const id = this.props.match.params.id;
+  const submitJob=(event:any)=>{
     event.preventDefault();
-    console.log("index = " + id);
+
     //Our controller endpoint to save data to the database
     axios
-      .put("http://localhost:5000/job/" + id, {
-        title: this.state.title,
-        description: this.state.description,
-        jobtype: this.state.jobtype,
-        file: this.state.file,
-        year: this.state.year,
-        researchers: this.state.selectedResearchers,
+      .post("http://localhost:5000/jobs", {
+        title: job.title,
+        description: job.description,
+        jobtype: job.jobtype,
+        file: job.file,
+        year: job.year,
+        researchers: job.researchers,
       })
       .then((response) => {
         console.log(response);
@@ -126,18 +38,42 @@ class UpdateJob extends React.Component {
       .catch((error) => {
         console.log(error);
       });
-
-    this.props.history.push("/careers");
+    history.push("/jobs");
   }
 
-  render() {
-    const { title, description, jobtype, file, year, researchers, allResearchers } =
-      this.state;
+  //Function to update the select value
+  const onChange=(e:any)=> {
+    const [name,value]=e.target;
+   setJob(prev=>({
+      ...prev,
+       [name]:value,
+    }));
+  }
 
+
+  const getResearchers=()=>{
+    axios
+    .get("http://localhost:5000/researchers/")
+    .then((Response) => {
+      setAllResearchers(Response.data);
+      console.log("element=" + Response.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+  
+  useEffect(()=>{
+    getResearchers();
+  },[])
+
+  //redirect function to be included so that we go back to researcher list each time a new researcher is added
     return (
-      <main>
-        <h1>Update a job </h1>
-        <form onSubmit={this.submitJob.bind(this)}>
+      <>
+        <main>
+          <h1>Create a new job</h1>
+          {/*Form used to fill the researcher component*/}
+          <form onSubmit={submitJob}>
             <div className="form-group row">
               <label className="form-label col-12 col-sm-2" htmlFor="title">
                 Title
@@ -149,8 +85,8 @@ class UpdateJob extends React.Component {
                   name="title"
                   id="title"
                   required
-                  value={title}
-                  onChange={this.onChangeTitle}
+                  value={job.title}
+                  onChange={onChange}
                 />
               </div>
             </div>
@@ -165,8 +101,8 @@ class UpdateJob extends React.Component {
                   name="description"
                   id="description"
                   required
-                  value={description}
-                  onChange={this.onChangeDescription}
+                  value={job.description}
+                  onChange={onChange}
                 ></textarea>
               </div>
             </div>
@@ -181,8 +117,8 @@ class UpdateJob extends React.Component {
               <div className="col-12 col-sm-10">
                 <select
                   multiple={false}
-                  value={jobtype}
-                  onChange={this.onChangeJobtype}
+                  value={job.jobtype}
+                  onChange={onChange}
                   className="form-control"
                   name="jobtype"
                 >
@@ -202,7 +138,7 @@ class UpdateJob extends React.Component {
                 <FileBase
                   type="file"
                   multiple={false}
-                  onDone={({ base64 }) => this.setState({ file: base64 })}
+                  onDone={(base64:any ) => setJob(prev=>({ ...prev, file: base64 }))}
                 />
               </div>
             </div>
@@ -218,8 +154,8 @@ class UpdateJob extends React.Component {
                   name="year"
                   id="year"
                   required
-                  value={year}
-                  onChange={this.onChangeYear}
+                  value={job.year}
+                  onChange={onChange}
                 />
               </div>
             </div>
@@ -234,14 +170,14 @@ class UpdateJob extends React.Component {
               <div className="col-12 col-sm-10">
                 <select
                   multiple={true}
-                  value={researchers}
-                  onChange={this.onChangeResearchers}
+                  value={job.researchers}
+                  onChange={onChange}
                   className="form-control"
                   name="researchers"
                 >
                   <option value="">== Choose researchers == </option>
                   {/*Capitalize the first letter*/}
-                  {this.state.allResearchers.map((item) => (
+                  {allResearchers.map((item:any) => (
                     <option value={item._id} key={item._id}>
                       {item.first_name.charAt(0).toUpperCase() +
                         item.first_name.substring(1)}
@@ -265,10 +201,9 @@ class UpdateJob extends React.Component {
               </div>
             </div>
           </form>
-
-      </main>
+        </main>
+      </>
     );
-  }
 }
 
-export default withRouter(UpdateJob);
+export default CreateJob;
