@@ -1,57 +1,55 @@
-import React from "react";
-import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 //Component used to display the list of all the groups
 
-class ShowEvent extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
+const ShowEvent=()=> {
+
+  const id = useParams();
+ const [labEvent,setlabEvent]=useState({
       title: "",
       description: "",
       picture: "",
       date: "",
       place: "",
       presenters:"",
-    };
-  }
+ });
+    
 
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  componentDidMount() {
-    const id = this.props.match.params.id;
+  const getEvent=(id:any)=> {
     // Use of the get controllers through the axios API
     axios
       .get("http://localhost:5000/event/" + id)
-      .then((Response) => {
-        this.setState({
+      .then((Response) => 
+        setlabEvent({
           title: Response.data.title,
           description: Response.data.description,
           picture: Response.data.picture,
           date: Response.data.date,
           place: Response.data.place,
           presenters: Response.data.presenters,
-        });
-      })
+        }))
       .catch((error) => {
         console.log(error);
       });
   }
 
-  render() {
-    const { title, description, picture, date, place, presenters } = this.state;
+  useEffect(()=>{
+ getEvent(id);
+  },[id])
 
     return (
       <main>
         <div>
-          <img className="top-img card-img-top" src={picture} alt="Card cap" />
+          <img className="top-img card-img-top" src={labEvent.picture} alt="Card cap" />
         </div>
         <div className="row">
-          <h1 className="group-title">Details about {title} </h1>
-          <p className="group-description col-12">{description}</p>
-          <p className="col-12">The event will take place at {place} on the {date}</p>
-          <p className="col-12">The presenters are {presenters}</p>
+          <h1 className="group-title">Details about {labEvent.title} </h1>
+          <p className="group-description col-12">{labEvent.description}</p>
+          <p className="col-12">The event will take place at {labEvent.place} on the {labEvent.date}</p>
+          <p className="col-12">The presenters are {labEvent.presenters}</p>
         </div>
 
         <div className="row">
@@ -61,7 +59,6 @@ class ShowEvent extends React.Component {
         </div>
       </main>
     );
-  }
 }
 
-export default withRouter(ShowEvent);
+export default ShowEvent;

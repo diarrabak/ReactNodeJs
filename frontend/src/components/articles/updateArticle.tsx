@@ -1,47 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
 //Component used to display the list of all the groups
 
-class UpdateArticle extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      authors: "",
-      abstract: "",
-      tags: "",
-      file: "",
-      journal: "",
-      year: "",
-      researchers: [],
-      allResearchers: [], //List of all users
-      selectedResearchers: [],
-    };
+const UpdateArticle=()=>{
+  const history=useHistory();
+  const [article, setArticle]=useState({
+    title: "",
+    authors: "",
+    abstract: "",
+    tags: "",
+    file: "",
+    journal: "",
+    year: "",
+    researchers: [''],
+   });
+    
+   const [allResearchers, setAllResearchers]=useState<any[]>([]);
 
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onChangeAuthors = this.onChangeAuthors.bind(this);
-    this.onChangeAbstract = this.onChangeAbstract.bind(this);
-    this.onChangeTags = this.onChangeTags.bind(this);
-    this.onChangeFile = this.onChangeFile.bind(this);
-    this.onChangeJournal = this.onChangeJournal.bind(this);
-    this.onChangeYear = this.onChangeYear.bind(this);
-    this.onChangeResearchers = this.onChangeResearchers.bind(this);
-  }
+   const articleAuthors:any[]=allResearchers.filter((author:any)=>article.researchers.includes(author._id));
 
+   const id=useParams();
+   console.log(id)
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  componentDidMount() {
-    const id = this.props.match.params.id;
-    // const { match: { params } } = this.props;
-    //console.log("Params= "+ id);
+  const getArticle=(id:any)=> {
+
+    console.log("RS= " + id);
     // Use of the get controllers through the axios API
     axios
       .get("http://localhost:5000/article/" + id)
-      .then((Response) => {
-        this.setState({
+      .then((Response) => 
+       setArticle({
           title: Response.data.title,
           authors: Response.data.authors,
           abstract: Response.data.abstract,
@@ -50,94 +42,47 @@ class UpdateArticle extends React.Component {
           journal: Response.data.journal,
           year: Response.data.year,
           researchers: Response.data.researchers,
-        });
-        //console.log('element='+this.state.currentgroup);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        this.setState({
-          allResearchers: Response.data,
-        });
-        console.log("element=" + Response.data);
-      })
+        }))
       .catch((error) => {
         console.log(error);
       });
   }
 
-  //Function to update the select value
-  onChangeResearchers(e) {
-    this.setState({
-      selectedResearchers: Array.from(
-        e.target.selectedOptions,
-        (item) => item.value
-      ),
-    });
-    e.preventDefault();
-  }
+ const getResearchers=()=>{
+  axios
+  .get("http://localhost:5000/researchers/")
+  .then((Response) => {
+    setAllResearchers(Response.data);
+    console.log("element=" + Response.data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
+}
 
-  onChangeTitle(e) {
-    this.setState({
-      title: e.target.value,
-    });
-  }
+useEffect(()=>{
+  getArticle(id);
+},[id])
 
-  onChangeAuthors(e) {
-    this.setState({
-      authors: e.target.value,
-    });
-  }
+useEffect(()=>{
+  getResearchers();
+},[])
 
-  onChangeAbstract(e) {
-    this.setState({
-      abstract: e.target.value,
-    });
-  }
-
-  onChangeTags(e) {
-    this.setState({
-      tags: e.target.value,
-    });
-  }
-
-  onChangeFile(e) {
-    this.setState({
-      file: e.target.value,
-    });
-  }
-
-  onChangeJournal(e) {
-    this.setState({
-      journal: e.target.value,
-    });
-  }
-
-  onChangeYear(e) {
-    this.setState({
-      year: e.target.value,
-    });
-  }
-
-  submitArticle(event) {
-    const id = this.props.match.params.id;
+  
+   const submitArticle=(event:any)=> {
     event.preventDefault();
-    console.log("index = " + id);
+
     //Our controller endpoint to save data to the database
     axios
-      .put("http://localhost:5000/article/" + id, {
-        title: this.state.title,
-        authors: this.state.authors,
-        abstract: this.state.abstract,
-        tags: this.state.tags,
-        file: this.state.file,
-        journal: this.state.journal,
-        year: this.state.year,
-        researchers: this.state.selectedResearchers,
+      .put("http://localhost:5000/articles/"+id, {
+        title: article.title,
+        authors: article.authors,
+        abstract: article.abstract,
+        tags: article.tags,
+        file: article.file,
+        journal: article.journal,
+        year: article.year,
+        researchers: article.researchers,
       })
       .then((response) => {
         console.log(response);
@@ -146,18 +91,24 @@ class UpdateArticle extends React.Component {
       .catch((error) => {
         console.log(error);
       });
-
-    this.props.history.push("/articles");
+    history.push("/articles");
   }
 
-  render() {
-    const { title, authors, abstract, tags, file, journal, year, researchers } =
-      this.state;
+  //Function to update the select value
+  const onChange=(e:any) =>{
+    const [name, value]=e.target;
+    setArticle(prev=>({
+     ...prev,
+     [name]:value,
+    }));
+  }
 
+
+  //Function to update the select value
     return (
       <main>
         <h1>Update an article </h1>
-        <form onSubmit={this.submitArticle.bind(this)}>
+        <form onSubmit={submitArticle}>
           <div className="form-group row">
             <label className="form-label col-12 col-sm-2" htmlFor="title">
               Title
@@ -169,8 +120,8 @@ class UpdateArticle extends React.Component {
                 name="title"
                 id="title"
                 required
-                value={title}
-                onChange={this.onChangeTitle}
+                value={article.title}
+                onChange={onChange}
               />
             </div>
           </div>
@@ -185,8 +136,8 @@ class UpdateArticle extends React.Component {
                 name="authors"
                 id="authors"
                 required
-                value={authors}
-                onChange={this.onChangeAuthors}
+                value={article.authors}
+                onChange={onChange}
               ></textarea>
             </div>
           </div>
@@ -201,8 +152,8 @@ class UpdateArticle extends React.Component {
                 name="abstract"
                 id="abstract"
                 required
-                value={abstract}
-                onChange={this.onChangeAbstract}
+                value={article.abstract}
+                onChange={onChange}
               ></textarea>
             </div>
           </div>
@@ -217,8 +168,8 @@ class UpdateArticle extends React.Component {
                 name="tags"
                 id="tags"
                 required
-                value={tags}
-                onChange={this.onChangeTags}
+                value={article.tags}
+                onChange={onChange}
               ></textarea>
             </div>
           </div>
@@ -231,7 +182,7 @@ class UpdateArticle extends React.Component {
               <FileBase
                 type="file"
                 multiple={false}
-                onDone={({ base64 }) => this.setState({ file: base64 })}
+                onDone={(base64:any ) => setArticle(prev=>({ ...prev, file: base64 }))}
               />
             </div>
           </div>
@@ -246,8 +197,8 @@ class UpdateArticle extends React.Component {
                 name="journal"
                 id="journal"
                 required
-                value={journal}
-                onChange={this.onChangeJournal}
+                value={article.journal}
+                onChange={onChange}
               ></textarea>
             </div>
           </div>
@@ -263,8 +214,8 @@ class UpdateArticle extends React.Component {
                 name="year"
                 id="year"
                 required
-                value={year}
-                onChange={this.onChangeYear}
+                value={article.year}
+                onChange={onChange}
               />
             </div>
           </div>
@@ -279,14 +230,14 @@ class UpdateArticle extends React.Component {
             <div className="col-12 col-sm-10">
               <select
                 multiple={true}
-                value={researchers}
-                onChange={this.onChangeResearchers}
+                value={article.researchers}
+                onChange={onChange}
                 className="form-control"
                 name="researchers"
               >
                 <option value="">== Choose researchers == </option>
                 {/*Capitalize the first letter*/}
-                {this.state.allResearchers.map((item) => (
+                {allResearchers.map((item) => (
                   <option value={item._id} key={item._id}>
                     {item.first_name.charAt(0).toUpperCase() +
                       item.first_name.substring(1)}
@@ -313,7 +264,6 @@ class UpdateArticle extends React.Component {
 
       </main>
     );
-  }
 }
 
-export default withRouter(UpdateArticle);
+export default UpdateArticle;

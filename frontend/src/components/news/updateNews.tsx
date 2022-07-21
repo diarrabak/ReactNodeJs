@@ -1,84 +1,57 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useHistory,useParams } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
 //Component used to display the list of all the groups
 
-class UpdateNews extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      description: "",
-      picture: "",
-      date: "",
-    };
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangePicture = this.onChangePicture.bind(this);
-    this.onChangeDate = this.onChangeDate.bind(this);
-  }
+function UpdateNews() {
+
+  const id = useParams();
+  const history=useHistory();
+  const [info, setInfo] = useState({
+    title: "",
+    description: "",
+    picture: "",
+    date: "",
+  });
 
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  componentDidMount() {
-    const id = this.props.match.params.id;
-    // const { match: { params } } = this.props;
-    //console.log("Params= "+ id);
+  function getNews(id: any) {
+    console.log("RS= " + id);
     // Use of the get controllers through the axios API
     axios
-      .get("http://localhost:5000/new/" + id)
+      .get("http://localhost:5000/news/" + id)
       .then((Response) => {
-        this.setState({
+        setInfo({
           title: Response.data.title,
           description: Response.data.description,
           picture: Response.data.picture,
           date: Response.data.date,
         });
-        //console.log('element='+this.state.currentgroup);
       })
       .catch((error) => {
         console.log(error);
       });
   }
 
-  //Function to update the select value
-  onChangeTitle(e) {
-    this.setState({
-      title: e.target.value,
-    });
-  }
+  useEffect(() => {
+    getNews(id);
+  }, [id]);
 
-  onChangeDescription(e) {
-    this.setState({
-      description: e.target.value,
-    });
-  }
+   //method appending the form data to the group fields
 
-  onChangePicture(e) {
-    this.setState({
-      picture: e.target.value,
-    });
-  }
-
-  onChangeDate(e) {
-    this.setState({
-      date: e.target.value,
-    });
-  }
-
-  submitNews(event) {
-    const id = this.props.match.params.id;
+   function submitNews(event: any) {
     event.preventDefault();
-    console.log("index = " + id);
+
     //Our controller endpoint to save data to the database
     axios
-      .put("http://localhost:5000/new/" + id, {
-        title: this.state.title,
-        description: this.state.description,
-        picture: this.state.picture,
-        date: this.state.date,
+      .put("http://localhost:5000/news/"+id, {
+        title: info.title,
+        description: info.description,
+        picture: info.picture,
+        date: info.date,
       })
       .then((response) => {
         console.log(response);
@@ -87,17 +60,23 @@ class UpdateNews extends React.Component {
       .catch((error) => {
         console.log(error);
       });
-
-    this.props.history.push("/news");
+    history.push("/news");
   }
 
-  render() {
-    const { title, description, picture, date } = this.state;
+  //Function to update the select value
+
+  function onChange(e: any) {
+    const [name, value] = e.target;
+    setInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
     return (
       <main>
         <h1>Update news </h1>
-        <form onSubmit={this.submitNews.bind(this)}>
+        <form onSubmit={submitNews}>
           <div className="form-group row">
             <label className="form-label col-12 col-sm-2" htmlFor="title">
               Title
@@ -109,8 +88,8 @@ class UpdateNews extends React.Component {
                 name="title"
                 id="title"
                 required
-                value={title}
-                onChange={this.onChangeTitle}
+                value={info.title}
+                onChange={onChange}
               />
             </div>
           </div>
@@ -128,8 +107,8 @@ class UpdateNews extends React.Component {
                 name="description"
                 id="description"
                 required
-                value={description}
-                onChange={this.onChangeDescription}
+                value={info.description}
+                onChange={onChange}
               ></textarea>
             </div>
           </div>
@@ -142,7 +121,7 @@ class UpdateNews extends React.Component {
               <FileBase
                 type="file"
                 multiple={false}
-                onDone={({ base64 }) => this.setState({ picture: base64 })}
+                onDone={(base64:any ) => setInfo(prev=>({ ...prev, picture: base64 }))}
               />
             </div>
           </div>
@@ -158,8 +137,8 @@ class UpdateNews extends React.Component {
                   name="date"
                   id="date"
                   required
-                  value={date}
-                  onChange={this.onChangeDate}
+                  value={info.date}
+                  onChange={onChange}
                 />
               </div>
             </div>
@@ -177,7 +156,6 @@ class UpdateNews extends React.Component {
         </form>
       </main>
     );
-  }
 }
 
 export default withRouter(UpdateNews);

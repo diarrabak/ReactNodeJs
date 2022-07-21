@@ -1,36 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { withRouter } from "react-router";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
 
 // This component is used to create a new group and save to the database
-class CreateGroup extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      title: "",
-      description: "",
-      picture: "",
-      researchers: [], //List of all users
-      selectedResearchers: [],
-    };
-    this.onChangeTitle = this.onChangeTitle.bind(this);
-    this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangeResearchers = this.onChangeResearchers.bind(this);
-  }
+const CreateGroup=()=> {
+  const history=useHistory();
+  const [group, setGroup]=useState({
+    title: "",
+    description: "",
+    picture: "",
+    researchers: [''], //List of all users
+  })
+  const [allResearchers, setAllResearchers]=useState([]); 
+  
   //method appending the form data to the group fields
 
-  submitGroup(event) {
+  function submitGroup(event:any) {
     event.preventDefault();
 
     //Our controller endpoint to save data to the database
     axios
       .post("http://localhost:5000/groups", {
-        title: this.state.title,
-        description: this.state.description,
-        picture: this.state.picture,
-        researchers: this.state.selectedResearchers,
+        title: group.title,
+        description: group.description,
+        picture: group.picture,
+        researchers: group.researchers,
       })
       .then((response) => {
         console.log(response);
@@ -39,56 +35,41 @@ class CreateGroup extends React.Component {
       .catch((error) => {
         console.log(error);
       });
-    this.props.history.push("/groups");
+    history.push("/groups");
   }
 
   //Function to update the select value
-  onChangeResearchers(e) {
-    this.setState({
-      selectedResearchers: Array.from(
-        e.target.selectedOptions,
-        (item) => item.value
-      ),
-    });
-    e.preventDefault();
+  function onChange(e:any) {
+    const [name, value]=e.target;
+    setGroup(prev=>({
+      ...prev,
+      [name]:value,
+      
+    }))
   }
 
-  onChangeTitle(e) {
-    this.setState({
-      title: e.target.value,
-    });
-  }
-
-  onChangeDescription(e) {
-    this.setState({
-      description: e.target.value,
-    });
-  }
-
-  componentDidMount() {
+  const getResearchers=()=>{
     axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        this.setState({
-          researchers: Response.data,
-        });
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    .get("http://localhost:5000/researchers/")
+    .then((Response) => {
+      setAllResearchers(Response.data);
+      console.log("element=" + Response.data);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   }
+  
+  useEffect(()=>{
+    getResearchers();
+  },[])
 
-  //redirect function to be included so that we go back to group list each time a new group is added
-
-  render() {
     return (
-      <>
         <main>
           <h1>Create a new group</h1>
           {/*Form used to fill the group component*/}
           <form
-            onSubmit={this.submitGroup.bind(this)}
+            onSubmit={submitGroup}
           >
             <div className="form-group row">
               <label className="form-label col-12 col-sm-2" htmlFor="title">
@@ -101,8 +82,8 @@ class CreateGroup extends React.Component {
                   name="title"
                   id="title"
                   required
-                  value={this.state.title}
-                  onChange={this.onChangeTitle}
+                  value={group.title}
+                  onChange={onChange}
                 />
               </div>
             </div>
@@ -120,8 +101,8 @@ class CreateGroup extends React.Component {
                   name="description"
                   id="description"
                   required
-                 value={this.state.description}
-                  onChange={this.onChangeDescription}
+                 value={group.description}
+                  onChange={onChange}
                 >
                
                 
@@ -137,9 +118,7 @@ class CreateGroup extends React.Component {
                 <FileBase 
                   type="file"
                   multiple={false}
-                  onDone={({ base64 }) =>
-                    this.setState({ picture: base64 })
-                  }
+                  onDone={(base64:any ) => setGroup(prev=>({ ...prev, picture: base64 }))}
                 />
               </div>
             </div>
@@ -156,14 +135,14 @@ class CreateGroup extends React.Component {
               <div className="col-12 col-sm-10">
                 <select
                   multiple={true}
-                  value={this.state.selectedResearchers}
-                  onChange={this.onChangeResearchers}
+                  value={group.researchers}
+                  onChange={onChange}
                   className="form-control"
                   name="researchers"
                 >
                   <option value="">== Choose researchers == </option>
                   {/*Capitalize the first letter*/}
-                  {this.state.researchers.map((item) => (
+                  {allResearchers.map((item:any) => (
                     <option value={item._id} key={item._id}>
                       {item.first_name.charAt(0).toUpperCase() +
                         item.first_name.substring(1)}
@@ -188,9 +167,8 @@ class CreateGroup extends React.Component {
             </div>
           </form>
         </main>
-      </>
+  
     );
-  }
 }
 
-export default withRouter(CreateGroup);
+export default CreateGroup;
