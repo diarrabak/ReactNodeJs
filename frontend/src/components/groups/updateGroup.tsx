@@ -3,6 +3,7 @@ import { withRouter } from "react-router";
 import { Link, useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
+import getFileBase64 from "../../helpers/fileConversion";
 //Component used to display the list of all the groups
 
 function UpdateGroup() {
@@ -87,24 +88,9 @@ function UpdateGroup() {
     }));
   }
 
-  const getBase64 = (file: any) => {
-    return new Promise((resolve) => {
-      let baseURL: any = "";
-      // Make new FileReader
-      let reader = new FileReader();
-      // Convert the file to base64 text
-      reader.readAsDataURL(file);
-      // on reader load somthing...
-      reader.onload = () => {
-        baseURL = reader.result;
-        resolve(baseURL);
-      };
-    });
-  };
-
   const onFileChange = (e: any) => {
     const { name, files } = e.target;
-    getBase64(files[0])
+    getFileBase64(files[0])
       .then((result) => setGroup((prev) => ({ ...prev, [name]: result })))
       .catch((err) => {
         console.log(err);

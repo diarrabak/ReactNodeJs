@@ -3,7 +3,7 @@ import axios from "axios";
 import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
-
+import getFileBase64 from "../../helpers/fileConversion";
 // This component is used to create a new researcher and save to the database
 const CreateResearcher = () => {
   const [groups, setGroups] = useState([]);
@@ -85,24 +85,9 @@ const CreateResearcher = () => {
     getArticles();
   }, []);
 
-  const getBase64 = (file: any) => {
-    return new Promise((resolve) => {
-      let baseURL: any = "";
-      // Make new FileReader
-      let reader = new FileReader();
-      // Convert the file to base64 text
-      reader.readAsDataURL(file);
-      // on reader load somthing...
-      reader.onload = () => {
-        baseURL = reader.result;
-        resolve(baseURL);
-      };
-    });
-  };
-
   const onFileChange = (e: any) => {
     const { name, files } = e.target;
-    getBase64(files[0])
+    getFileBase64(files[0])
       .then((result) => setResearcher((prev) => ({ ...prev, [name]: result })))
       .catch((err) => {
         console.log(err);
