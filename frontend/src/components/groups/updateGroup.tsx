@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
-import {Link, useParams,useHistory } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
+import getFileBase64 from "../../helpers/fileConversion";
 //Component used to display the list of all the groups
 
 function UpdateGroup() {
-  const id = useParams();
-  const history=useHistory();
+  const { id }: any = useParams();
+  const history = useHistory();
   const [group, setGroup] = useState({
     title: "",
     description: "",
@@ -57,12 +58,12 @@ function UpdateGroup() {
     getResearchers();
   }, []);
 
-  function submitGroup(event:any) {
+  function submitGroup(event: any) {
     event.preventDefault();
 
     //Our controller endpoint to save data to the database
     axios
-      .put("http://localhost:5000/groups/"+id, {
+      .put("http://localhost:5000/groups/" + id, {
         title: group.title,
         description: group.description,
         picture: group.picture,
@@ -79,113 +80,116 @@ function UpdateGroup() {
   }
 
   //Function to update the select value
-  function onChange(e:any) {
-    const [name, value]=e.target;
-    setGroup(prev=>({
+  function onChange(e: any) {
+    const { name, value } = e.target;
+    setGroup((prev) => ({
       ...prev,
-      [name]:value,
-      
-    }))
+      [name]: value,
+    }));
   }
 
-    return (
-      <main>
-        <h1>Update a group </h1>
-        <form onSubmit={submitGroup}>
-          <div className="form-group row">
-            <label className="form-label col-12 col-sm-2" htmlFor="title">
-              Group title
-            </label>
-            <div className="col-12 col-sm-10">
-              <input
-                type="text"
-                className="form-control"
-                name="title"
-                id="title"
-                required
-                value={group.title}
-                onChange={onChange}
-              />
-            </div>
-          </div>
+  const onFileChange = (e: any) => {
+    const { name, files } = e.target;
+    getFileBase64(files[0])
+      .then((result) => setGroup((prev) => ({ ...prev, [name]: result })))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
-          <div className="form-group row">
-            <label
-              className="form-label  col-12 col-sm-2"
-              htmlFor="description"
-            >
-              Group description
-            </label>
-            <div className="col-12 col-sm-10">
+  return (
+    <main>
+      <h1>Update a group </h1>
+      <form onSubmit={submitGroup}>
+        <div className="form-group row">
+          <label className="form-label col-12 col-sm-2" htmlFor="title">
+            Group title
+          </label>
+          <div className="col-12 col-sm-10">
+            <input
+              type="text"
+              className="form-control"
+              name="title"
+              id="title"
+              required
+              value={group.title}
+              onChange={onChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-group row">
+          <label className="form-label  col-12 col-sm-2" htmlFor="description">
+            Group description
+          </label>
+          <div className="col-12 col-sm-10">
             <textarea
-                  className="form-control"
-                  name="description"
-                  id="description"
-                  required
-                  value= {group.description}
-                  onChange={onChange}
-                >
-                
-                </textarea>
-            </div>
+              className="form-control"
+              name="description"
+              id="description"
+              required
+              value={group.description}
+              onChange={onChange}
+            ></textarea>
           </div>
+        </div>
 
-          <div className="form-group row">
-            <label className="form-label  col-12 col-sm-2" htmlFor="picture">
-              Picture
-            </label>
-            <div className="col-12 col-sm-10">
-            <FileBase
-                  type="file"
-                  multiple={false}
-                  onDone={(base64:any ) => setGroup(prev=>({ ...prev, picture: base64 }))}
-                />
-            </div>
+        <div className="form-group row">
+          <label className="form-label  col-12 col-sm-2" htmlFor="picture">
+            Picture
+          </label>
+          <div className="col-12 col-sm-10">
+            <input
+              type="file"
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
+            />
           </div>
+        </div>
 
-          {/*Since it is a many to many relationship, no need to include users and topics here*/}
+        {/*Since it is a many to many relationship, no need to include users and topics here*/}
 
-          <div className="form-group row">
-            <label
-              className="form-label  col-12 col-sm-2"
-              htmlFor="researchers"
+        <div className="form-group row">
+          <label className="form-label  col-12 col-sm-2" htmlFor="researchers">
+            Group researchers
+          </label>
+          <div className="col-12 col-sm-10">
+            <select
+              multiple={true}
+              value={group.researchers}
+              onChange={onChange}
+              className="form-control"
+              name="researchers"
             >
-              Group researchers
-            </label>
-            <div className="col-12 col-sm-10">
-              <select
-                multiple={true}
-                value={group.researchers}
-                onChange={onChange}
-                className="form-control"
-                name="researchers"
-              >
-                <option value="">== Choose researchers == </option>
-                {/*Capitalize the first letter*/}
-                {allResearchers.map((item:any) => (
-                  <option value={item._id} key={item._id}>
-                    {item.first_name.charAt(0).toUpperCase() +
-                      item.first_name.substring(1)}
-                    {item.last_name.charAt(0).toUpperCase() +
-                      item.last_name.substring(1)}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <option value="">== Choose researchers == </option>
+              {/*Capitalize the first letter*/}
+              {allResearchers.map((item: any) => (
+                <option value={item._id} key={item._id}>
+                  {item.first_name.charAt(0).toUpperCase() +
+                    item.first_name.substring(1)}
+                  {item.last_name.charAt(0).toUpperCase() +
+                    item.last_name.substring(1)}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
 
-          <div className="row">
-            <div className="offset-sm-2 col-12 col-sm-4">
-              <input type="submit" className="btn btn-success" />
-            </div>
-            {/*Link back to group list*/}
-            <div className="col-12 col-sm-6">
-              <Link to="/groups"> Back to group list </Link>
-            </div>
+        <div className="row">
+          <div className="offset-sm-2 col-12 col-sm-4">
+            <input type="submit" className="btn btn-success" />
           </div>
-        </form>
-      </main>
-    );
+          {/*Link back to group list*/}
+          <div className="col-12 col-sm-6">
+            <Link to="/groups"> Back to group list </Link>
+          </div>
+        </div>
+      </form>
+    </main>
+  );
 }
 
-export default  UpdateGroup ;
+export default UpdateGroup;

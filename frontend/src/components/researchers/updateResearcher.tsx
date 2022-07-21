@@ -3,11 +3,12 @@ import { withRouter } from "react-router";
 import {Link, useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
+import getFileBase64 from "../../helpers/fileConversion";
 //Component used to display the list of all the groups
 
 const UpdateResearcher=()=> {
  
-  const id=useParams();
+  const {id}:any=useParams();
   const history=useHistory();
   const [researcher, setResearcher] = useState({
     username: "",
@@ -112,12 +113,23 @@ const UpdateResearcher=()=> {
 
   //Function to update the select value
   function onChange(e:any) {
-    const [name, value] = e.target;
+    const {name, value} = e.target;
     setResearcher((prev) => ({
       ...prev,
       [name]: value,
     }));
   }
+
+
+  const onFileChange = (e: any) => {
+    const { name, files } = e.target;
+    getFileBase64(files[0])
+      .then((result) => setResearcher((prev) => ({ ...prev, [name]: result })))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
 
     return (
       <main>
@@ -230,13 +242,14 @@ const UpdateResearcher=()=> {
                 Picture
               </label>
               <div className="col-12 col-sm-10">
-                <FileBase 
-                  type="file"
-                  multiple={false}
-                  onDone={(base64: any) =>
-                    setResearcher((prev) => ({ ...prev, picture: base64 }))
-                  }
-                />
+                <input
+              type="file"
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
+            />
               </div>
             </div>
 

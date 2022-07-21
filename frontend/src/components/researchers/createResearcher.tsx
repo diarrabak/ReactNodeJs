@@ -3,7 +3,7 @@ import axios from "axios";
 import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
-
+import getFileBase64 from "../../helpers/fileConversion";
 // This component is used to create a new researcher and save to the database
 const CreateResearcher = () => {
   const [groups, setGroups] = useState([]);
@@ -55,7 +55,7 @@ const CreateResearcher = () => {
 
   //Function to update the select value
   function onChange(e:any) {
-    const [name, value] = e.target;
+    const {name, value} = e.target;
     setResearcher((prev) => ({
       ...prev,
       [name]: value,
@@ -84,6 +84,16 @@ const CreateResearcher = () => {
     getGroups();
     getArticles();
   }, []);
+
+  const onFileChange = (e: any) => {
+    const { name, files } = e.target;
+    getFileBase64(files[0])
+      .then((result) => setResearcher((prev) => ({ ...prev, [name]: result })))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   //redirect function to be included so that we go back to researcher list each time a new researcher is added
 
   return (
@@ -181,12 +191,13 @@ const CreateResearcher = () => {
             Picture
           </label>
           <div className="col-12 col-sm-10">
-            <FileBase
+          <input
               type="file"
-              multiple={false}
-              onDone={(base64: any) =>
-                setResearcher((prev) => ({ ...prev, picture: base64 }))
-              }
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
             />
           </div>
         </div>

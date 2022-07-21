@@ -5,7 +5,7 @@ import axios from "axios";
 //Component used to display the list of all the groups
 
 function ShowNews() {
-  const id = useParams();
+  const {id}:any = useParams();
   const [info, setInfo] = useState({
     title: "",
     description: "",

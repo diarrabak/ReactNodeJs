@@ -3,11 +3,12 @@ import { withRouter } from "react-router";
 import { Link, useHistory,useParams } from "react-router-dom";
 import axios from "axios";
 import FileBase from "react-file-base64";
+import getFileBase64 from "../../helpers/fileConversion";
 //Component used to display the list of all the groups
 
 function UpdateNews() {
 
-  const id = useParams();
+  const {id}:any = useParams();
   const history=useHistory();
   const [info, setInfo] = useState({
     title: "",
@@ -66,12 +67,21 @@ function UpdateNews() {
   //Function to update the select value
 
   function onChange(e: any) {
-    const [name, value] = e.target;
+    const {name, value} = e.target;
     setInfo((prev) => ({
       ...prev,
       [name]: value,
     }));
   }
+
+  const onFileChange = (e: any) => {
+    const { name, files } = e.target;
+    getFileBase64(files[0])
+      .then((result) => setInfo((prev) => ({ ...prev, [name]: result })))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
     return (
       <main>
@@ -118,11 +128,14 @@ function UpdateNews() {
               Picture
             </label>
             <div className="col-12 col-sm-10">
-              <FileBase
-                type="file"
-                multiple={false}
-                onDone={(base64:any ) => setInfo(prev=>({ ...prev, picture: base64 }))}
-              />
+            <input
+              type="file"
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
+            />
             </div>
           </div>
 

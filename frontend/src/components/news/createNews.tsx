@@ -3,7 +3,7 @@ import axios from "axios";
 import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
-
+import getFileBase64 from "../../helpers/fileConversion";
 // This component is used to create a new group and save to the database
 function CreateNews() {
   const history = useHistory();
@@ -40,12 +40,21 @@ function CreateNews() {
   //Function to update the select value
 
   function onChange(e: any) {
-    const [name, value] = e.target;
+    const {name, value} = e.target;
     setNews((prev) => ({
       ...prev,
       [name]: value,
     }));
   }
+
+  const onFileChange = (e: any) => {
+    const { name, files } = e.target;
+    getFileBase64(files[0])
+      .then((result) => setNews((prev) => ({ ...prev, [name]: result })))
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
   return (
     <main>
@@ -90,12 +99,13 @@ function CreateNews() {
             Picture
           </label>
           <div className="col-12 col-sm-10">
-            <FileBase
+          <input
               type="file"
-              multiple={false}
-              onDone={(base64: any) =>
-                setNews((prev) => ({ ...prev, picture: base64 }))
-              }
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
             />
           </div>
         </div>

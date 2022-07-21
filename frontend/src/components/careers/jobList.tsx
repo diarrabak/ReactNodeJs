@@ -6,7 +6,7 @@ import SingleJob from "./singleJob";
 
 //Main component of researcher feature
 const JobList =()=> {
-
+const [update, setUpdate]=useState(false);
  const [jobs, setJobs]=useState([]);
     
   //When the component is active on the DOM
@@ -24,7 +24,7 @@ const JobList =()=> {
 
   useEffect(()=>{
     getJobs();
-  },[])
+  },[update])
  
 
     return (
@@ -33,7 +33,7 @@ const JobList =()=> {
 
         <div className="row">
           {/*List of group from the state variable*/}
-          {jobs.map((job, id) => <SingleJob job={job} key={id} />
+          {jobs.map((job, id) => <SingleJob job={job} key={id} setUpdate={setUpdate}/>
             
         )}
         </div>

@@ -5,7 +5,8 @@ import axios from "axios";
 
 const ShowEvent=()=> {
 
-  const id = useParams();
+const {id}:any = useParams();
+  console.log("this id",id)
  const [labEvent,setlabEvent]=useState({
       title: "",
       description: "",
