@@ -5,7 +5,7 @@ import axios from "axios";
 //Component used to display the list of all the groups
 
 const ShowGroup = () => {
-  const id = useParams();
+  const {id}:any = useParams();
   const [group, setGroup] = useState({
     title: "",
     description: "",
@@ -15,7 +15,7 @@ const ShowGroup = () => {
 
   const [allResearchers, setAllResearchers] = useState<any[]>([]);
   const groupResearchers: any[] = allResearchers.filter((author: any) =>
-    group.researchers.includes(author._id)
+    group?.researchers?.includes(author._id)
   );
 
   //When the component is active on the DOM

@@ -5,7 +5,7 @@ import axios from "axios";
 //Component used to display the selected researcher
 
 const ShowJob =()=> {
-  const id=useParams();
+  const {id}:any=useParams();
   const [job,setJob]=useState({
     title: "",
     description:"",
@@ -16,7 +16,7 @@ const ShowJob =()=> {
   });
    
   const [allResearchers, setAllResearchers]=useState<any[]>([]);
-  const jobContacts:any[]=allResearchers.filter((author:any)=>job.researchers.includes(author._id));
+  const jobContacts:any[]=allResearchers.filter((author:any)=>job?.researchers.includes(author._id));
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
   const getJob=(id:any)=> {
@@ -69,7 +69,7 @@ const ShowJob =()=> {
         <div className="row">
           <h2>Contact person</h2>
           {/*List of group from the state variable*/}
-          {jobContacts.map((researcher, id) => (
+          {jobContacts?.map((researcher, id) => (
             <div key={id}
               className="card col-12 col-sm-4"
             >

@@ -5,7 +5,7 @@ import axios from "axios";
 //Component used to display the selected researcher
 
 function ShowResearcher() {
-  const id=useParams();
+  const {id}:any=useParams();
   const [researcher, setResearcher] = useState({
     username: "",
     first_name: "",

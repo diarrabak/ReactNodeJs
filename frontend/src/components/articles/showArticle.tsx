@@ -18,7 +18,7 @@ const ShowArticle= ()=> {
 
    const [allResearchers, setAllResearchers]=useState<any[]>([]);
    const articleAuthors:any[]=allResearchers.filter((author:any)=>article.researchers.includes(author._id));
-   const id=useParams();
+   const {id}:any=useParams();
    console.log(id)
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
@@ -79,7 +79,7 @@ useEffect(()=>{
         <div className="row">
           <h2>Local contributors to this paper</h2>
           {/*List of group from the state variable*/}
-          {articleAuthors.map((author, id) => (
+          {articleAuthors?.map((author, id) => (
             <div key={id}
               className="card col-12 col-sm-4"
             >

@@ -6,7 +6,7 @@ import FileBase from "react-file-base64";
 
 const UpdateEvent=()=> {
 
-  const id = useParams();
+  const {id}:any = useParams();
   const history=useHistory();
   const [labEvent,setlabEvent]=useState({
        title: "",
@@ -68,12 +68,37 @@ const UpdateEvent=()=> {
   //Function to update the select value
 
  const onChange=(e:any)=>{
-  const [name, value]=e.target;
+  const {name, value}=e.target;
   setlabEvent((prev)=>(
     {...prev,
       [name]:value,
     }))
  }
+
+
+ const getBase64 = (file: any) => {
+  return new Promise((resolve) => {
+    let baseURL: any = "";
+    // Make new FileReader
+    let reader = new FileReader();
+    // Convert the file to base64 text
+    reader.readAsDataURL(file);
+    // on reader load somthing...
+    reader.onload = () => {
+      baseURL = reader.result;
+      resolve(baseURL);
+    };
+  });
+};
+
+const onFileChange = (e: any) => {
+  const { name, files } = e.target;
+  getBase64(files[0])
+    .then((result) => setlabEvent((prev) => ({ ...prev, [name]: result })))
+    .catch((err) => {
+      console.log(err);
+    });
+};
 
     return (
       <main>
@@ -120,11 +145,14 @@ const UpdateEvent=()=> {
               Picture
             </label>
             <div className="col-12 col-sm-10">
-              <FileBase
-                type="file"
-                multiple={false}
-                onDone={(base64:any ) => setlabEvent(prev=>({ ...prev, picture: base64 }))}
-              />
+            <input
+              type="file"
+              className="form-control"
+              name="picture"
+              id="picture"
+              accept="image/*"
+              onChange={onFileChange}
+            />
             </div>
           </div>
 

@@ -4,14 +4,17 @@ import { Link, useHistory } from 'react-router-dom';
 
 function SingleJob(props:any) {
     
-    const {job}=props;
+    const {job, setUpdate}=props;
     const history=useHistory();
     const deleteJob=(id:any)=> {
         const url = "http://localhost:5000/job/" + id ; //Url of the controller
         // Use of the get controllers through the axios API
         axios
           .delete(url)
-          .then(()=> history.push("/jobs"))
+          .then(()=> {
+            setUpdate(true); 
+            history.push("/careers");
+          })
           .catch((err)=>console.log(err));
       }
 

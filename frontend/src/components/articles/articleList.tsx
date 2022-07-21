@@ -41,7 +41,7 @@ const ArticleList=()=>{
         <div className="row">
           <div className="col-12 col-sm-6">
             {/*Link to the page of new group creation. This must be created in routes in App component*/}
-            <Link to="/addResearcher"> Add new researcher </Link>
+            <Link to="/addArticle"> Add new article </Link>
           </div>
           {/*Link to the page of group removal*/}
         </div>
