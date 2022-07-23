@@ -1,50 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import SingleEvent from "./singleEvent";
-
+import { useDispatch } from "react-redux";
+import { getEvents, setEvents } from "../../store/reducers/eventReducer";
+import { useSelector } from "react-redux";
+import ClipLoader from "react-spinners/ClipLoader";
 
 //Main component of group feature
-const EventList =()=>{
-  const [events,setEvents]=useState([]);
-  //When the component is active on the DOM
-  const getEvents=()=> {
-    const url = "http://localhost:5000/events"; //Url of the controller
+const EventList = () => {
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const events: any[] = useSelector((state: any) => state.events.allEvents);
+  const getAllEvents = () => {
+    setLoading(true);
+    dispatch(getEvents())
+      .then((Response: AxiosResponse) => {
+        dispatch(setEvents(Response.data));
+        setLoading(false);
+      })
+      .catch((error: AxiosError) => console.log(error));
+  };
 
-    // Use of the get controllers through the axios API
-    axios
-      .get(url)
-      .then((Response) =>setEvents(Response.data))
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  useEffect(() => {
+    getAllEvents();
+  }, [refresh]);
 
+  return (
+    <main>
+      <h1> Events list</h1>
 
-  useEffect(()=>{
-    getEvents();
-  },[])
-
-    return (
-      <main>
-        <h1> Events list</h1>
-
-        <div className="row">
-          {/*List of group from the state variable*/}
-          {events.map((event, id) => <SingleEvent event={event} key={id} />
-           
-          )}
-        </div>
-
-        <div className="row">
-          <div className="col-12 col-sm-6">
-            {/*Link to the page of new group creation. This must be created in routes in App component*/}
-            <Link to="/addEvent"> Add event </Link>
+      <div className="row">
+        {/*List of group from the state variable*/}
+        {loading ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ClipLoader color="blue" loading={loading} size={100} />
           </div>
-          {/*Link to the page of group removal*/}
+        ) : (
+          events?.map((event, id) => (
+            <SingleEvent event={event} key={id} setRefresh={setRefresh} />
+          ))
+        )}
+      </div>
+
+      <div className="row">
+        <div className="col-12 col-sm-6">
+          {/*Link to the page of new group creation. This must be created in routes in App component*/}
+          <Link to="/addEvent"> Add event </Link>
         </div>
-      </main>
-    );
-}
+        {/*Link to the page of group removal*/}
+      </div>
+    </main>
+  );
+};
 
 export default EventList;

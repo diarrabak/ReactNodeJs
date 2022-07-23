@@ -1,19 +1,18 @@
 import axios from "axios";
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { deleteArticle } from "../../store/reducers/articleReducer";
 
 
 function SingleArticle(props:any) {
-    const {article}=props;
+    const {article, setRefresh}=props;
+    const dispatch=useDispatch();
 
-    const deleteArticle=(id:any)=> {
-        const url = "http://localhost:5000/article/" + article._id ; //Url of the controller
-        // Use of the get controllers through the axios API
-        axios
-          .delete(url)
-          .then(()=>{})
-          .catch(err=>console.log(err))
-         
+    const removeArticle=(id:any)=> {
+          dispatch(deleteArticle(id))
+          .then(()=>setRefresh(true))
+          .catch((err:any)=>console.log(err))
       }
 
   return (
@@ -35,7 +34,7 @@ function SingleArticle(props:any) {
       </div>
       <div className="row">
         <div className="col-6">
-          <button className="btn btn-danger" onClick={()=>deleteArticle(article._id)}>
+          <button className="btn btn-danger" onClick={()=>removeArticle(article._id)}>
             Delete
           </button>
         </div>

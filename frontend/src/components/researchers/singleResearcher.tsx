@@ -1,17 +1,17 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import React from "react";
+import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
+import { deleteResearcher } from "../../store/reducers/researcherReducer";
 
 function SingleResearcher(props: any) {
   const history=useHistory();
-    const {researcher}=props;
-    function deleteResearcher(id:any) {
-        const url = "http://localhost:5000/researcher/" + id ; //Url of the controller
-        // Use of the get controllers through the axios API
-        axios
-          .delete(url)
-          .then(()=>history.push("/researchers"))
-          .catch((err)=>console.log(err))
+  const dispatch=useDispatch();
+    const {researcher, setRefresh}=props;
+    function removeResearcher(id:any) {
+        dispatch(deleteResearcher(id))
+          .then(()=>setRefresh(true))
+          .catch((err:AxiosError)=>console.log(err))
           
       }
   return (

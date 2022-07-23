@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { withRouter } from "react-router";
 import { Link, useParams, useHistory } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { createArticle, getArticle, updateArticle } from "../../store/reducers/articleReducer";
+import { getResearchers, setResearchers } from "../../store/reducers/researcherReducer";
 //Component used to display the list of all the groups
 
 const UpdateArticle = () => {
   const history = useHistory();
+  const dispatch=useDispatch();
+  const researchers:any[]=useSelector((state:any)=>state.researchers.allResearchers);
   const [article, setArticle] = useState({
     title: "",
     authors: "",
@@ -19,81 +25,36 @@ const UpdateArticle = () => {
     researchers: [""],
   });
 
-  const [allResearchers, setAllResearchers] = useState<any[]>([]);
-
-  const articleAuthors: any[] = allResearchers.filter((author: any) =>
-    article?.researchers.includes(author._id)
-  );
-
   const { id }: any = useParams();
   console.log(id);
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  const getArticle = (id: any) => {
-    console.log("RS= " + id);
-    // Use of the get controllers through the axios API
-    axios
-      .get("http://localhost:5000/article/" + id)
-      .then((Response) =>
-        setArticle({
-          title: Response.data.title,
-          authors: Response.data.authors,
-          abstract: Response.data.abstract,
-          tags: Response.data.tags,
-          file: Response.data.file,
-          journal: Response.data.journal,
-          year: Response.data.year,
-          researchers: Response.data.researchers,
-        })
-      )
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  const getResearchers = () => {
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        setAllResearchers(Response.data);
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
+  const getSingleArticle = (id: any) => {
+    dispatch(getArticle(id))
+      .then((Response:AxiosResponse) =>setArticle({ ...Response.data}))
+      .catch((error:AxiosError) => {
         console.log(error);
       });
   };
 
   useEffect(() => {
-    getArticle(id);
+    getSingleArticle(id);
   }, [id]);
 
-  useEffect(() => {
-    getResearchers();
-  }, []);
 
   const submitArticle = (event: any) => {
     event.preventDefault();
-
+ dispatch(updateArticle(id, article))
     //Our controller endpoint to save data to the database
-    axios
-      .put("http://localhost:5000/articles/" + id, {
-        title: article.title,
-        authors: article.authors,
-        abstract: article.abstract,
-        tags: article.tags,
-        file: article.file,
-        journal: article.journal,
-        year: article.year,
-        researchers: article.researchers,
-      })
-      .then((response) => {
+      .then((response:AxiosResponse) => {
         console.log(response);
+        history.push("/articles");
       })
       //Error message in case saving does not work
-      .catch((error) => {
+      .catch((error:AxiosError) => {
         console.log(error);
       });
-    history.push("/articles");
+   
   };
 
   //Function to update the select value
@@ -113,6 +74,16 @@ const UpdateArticle = () => {
         console.log(err);
       });
   };
+  const getAllResearchers=()=>{
+    dispatch(getResearchers())
+    .then((res:AxiosResponse)=>dispatch(setResearchers(res.data)))
+    .catch((err:AxiosError)=>console.log("No reserachers", err))
+  }
+
+  useEffect(()=>{
+    getAllResearchers();
+  },[])
+
 
   //Function to update the select value
   return (
@@ -247,7 +218,7 @@ const UpdateArticle = () => {
             >
               <option value="">== Choose researchers == </option>
               {/*Capitalize the first letter*/}
-              {allResearchers?.map((item) => (
+              {researchers?.map((item) => (
                 <option value={item._id} key={item._id}>
                   {item.first_name.charAt(0).toUpperCase() +
                     item.first_name.substring(1) +

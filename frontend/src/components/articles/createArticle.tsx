@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import FileBase from "react-file-base64";
 import { Link, useHistory } from "react-router-dom";
 import getFileBase64 from "../../helpers/fileConversion";
+import { getResearchers, setResearchers } from "../../store/reducers/researcherReducer";
+import { useDispatch } from "react-redux";
+import { createArticle } from "../../store/reducers/articleReducer";
+import { useSelector } from "react-redux";
 // This component is used to create a new researcher and save to the database
 const CreateArticle = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const [article, setArticle] = useState({
     title: "",
@@ -17,31 +22,21 @@ const CreateArticle = () => {
     researchers: [],
   });
 
-  const [allResearchers, setAllResearchers] = useState([]);
+  const allResearchers:any[]=useSelector((state:any)=>state.researchers.allResearchers)
 
   const submitArticle = (event: any) => {
     event.preventDefault();
-
+   dispatch(createArticle(article))
     //Our controller endpoint to save data to the database
-    axios
-      .post("http://localhost:5000/articles", {
-        title: article.title,
-        authors: article.authors,
-        abstract: article.abstract,
-        tags: article.tags,
-        file: article.file,
-        journal: article.journal,
-        year: article.year,
-        researchers: article.researchers,
-      })
-      .then((response) => {
+   
+      .then((response:AxiosResponse) => {
         console.log(response);
+        history.push("/articles");
       })
       //Error message in case saving does not work
-      .catch((error) => {
+      .catch((error:AxiosError) => {
         console.log(error);
       });
-    history.push("/articles");
   };
 
   //Function to update the select value
@@ -53,22 +48,11 @@ const CreateArticle = () => {
     }));
   };
 
-  const getResearchers = () => {
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        setAllResearchers(Response.data);
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
-  useEffect(() => {
-    getResearchers();
-  }, []);
-
+  const getAllResearchers=()=>{
+    dispatch(getResearchers())
+    .then((res:AxiosResponse)=>dispatch(setResearchers(res.data)))
+    .catch((err:AxiosError)=>console.log("No reserachers", err))
+  }
   const onFileChange = (e: any) => {
     const { name, files } = e.target;
     getFileBase64(files[0])
@@ -77,6 +61,10 @@ const CreateArticle = () => {
         console.log(err);
       });
   };
+
+  useEffect(()=>{
+    getAllResearchers();
+  },[])
   //redirect function to be included so that we go back to researcher list each time a new researcher is added
 
   return (

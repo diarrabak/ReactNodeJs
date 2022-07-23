@@ -1,52 +1,66 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import SingleJob from "./singleJob";
-
+import { useDispatch, useSelector } from "react-redux";
+import { getJobs, setJobs } from "../../store/reducers/jobReducer";
+import ClipLoader from "react-spinners/ClipLoader";
 
 //Main component of researcher feature
-const JobList =()=> {
-const [update, setUpdate]=useState(false);
- const [jobs, setJobs]=useState([]);
-    
+const JobList = () => {
+  const [update, setUpdate] = useState(false);
+  const jobs: any[] = useSelector((state: any) => state.jobs.allJobs);
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
   //When the component is active on the DOM
- const getJobs=()=> {
-    const url = "http://localhost:5000/jobs"; //Url of the controller
+  const getAllJobs = () => {
+    setLoading(true);
+    dispatch(getJobs())
+      .then((Response: AxiosResponse) => {
+        dispatch(setJobs(Response.data));
+        setLoading(false);
+      })
+      .catch((error: AxiosError) => console.log(error));
+  };
 
-    // Use of the get controllers through the axios API
-    axios
-      .get(url)
-      .then((Response) => setJobs(Response.data))
-      .catch((error) => {
-        console.log(error);
-      });
-  }
+  useEffect(() => {
+    getAllJobs();
+  }, [update]);
 
-  useEffect(()=>{
-    getJobs();
-  },[update])
- 
+  return (
+    <main>
+      <h1> Job list</h1>
 
-    return (
-      <main>
-        <h1> Job list</h1>
-
-        <div className="row">
-          {/*List of group from the state variable*/}
-          {jobs.map((job, id) => <SingleJob job={job} key={id} setUpdate={setUpdate}/>
-            
-        )}
-        </div>
-
-        <div className="row">
-          <div className="col-12 col-sm-6">
-            {/*Link to the page of new group creation. This must be created in routes in App component*/}
-            <Link to="/addJob"> Add new job </Link>
+      <div className="row">
+        {/*List of group from the state variable*/}
+        {loading ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ClipLoader color="blue" loading={loading} size={100} />
           </div>
-          {/*Link to the page of group removal*/}
+        ) : (
+          jobs.map((job, id) => (
+            <SingleJob job={job} key={id} setUpdate={setUpdate} />
+          ))
+        )}
+      </div>
+
+      <div className="row">
+        <div className="col-12 col-sm-6">
+          {/*Link to the page of new group creation. This must be created in routes in App component*/}
+          <Link to="/addJob"> Add new job </Link>
         </div>
-      </main>
-    );
-}
+        {/*Link to the page of group removal*/}
+      </div>
+    </main>
+  );
+};
 
 export default JobList;
