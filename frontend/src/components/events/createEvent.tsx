@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
-import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+import { useDispatch } from "react-redux";
+import { createEvent } from "../../store/reducers/eventReducer";
 
 // This component is used to create a new group and save to the database
 const CreateEvent = () => {
   const history = useHistory();
+  const dispatch=useDispatch();
   const [labEvent, setlabEvent] = useState({
     title: "",
     description: "",
@@ -22,23 +24,13 @@ const CreateEvent = () => {
     event.preventDefault();
 
     //Our controller endpoint to save data to the database
-    axios
-      .post("http://localhost:5000/events", {
-        title: labEvent.title,
-        description: labEvent.description,
-        picture: labEvent.picture,
-        date: labEvent.date,
-        place: labEvent.place,
-        presenters: labEvent.presenters,
-      })
-      .then((response) => {
+  dispatch(createEvent(labEvent))
+      .then((response:AxiosResponse) => {
         console.log(response);
+        history.push("/events");
       })
       //Error message in case saving does not work
-      .catch((error) => {
-        console.log(error);
-      });
-    history.push("/events");
+      .catch((error:AxiosError) => console.log(error));
   };
 
   //Function to update the select value

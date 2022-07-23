@@ -1,17 +1,16 @@
 import axios from "axios";
 import React from "react";
-import { Link, useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { deleteEvent } from "../../store/reducers/eventReducer";
 
 function SingleEvent(props: any) {
-  const { event } = props;
-  const history = useHistory();
-  const deleteEvent = (id: any) => {
-    const url = "http://localhost:5000/event/" + id; //Url of the controller
-    // Use of the get controllers through the axios API
-    axios
-      .delete(url)
-      .then(() => history.push("/events"))
-      .catch((err) => console.log(err));
+  const { event, setRefresh } = props;
+  const dispatch=useDispatch();
+  const removeEvent = (id: any) => {
+    dispatch(deleteEvent(id))
+      .then(() => setRefresh(true))
+      .catch((err:any) => console.log(err));
   };
 
   return (
@@ -26,7 +25,7 @@ function SingleEvent(props: any) {
         <div className="col-6">
           <button
             className="btn btn-danger"
-            onClick={() => deleteEvent(event._id)}
+            onClick={() => removeEvent(event._id)}
           >
             Delete
           </button>

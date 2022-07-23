@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { Link, useHistory } from "react-router-dom";
-import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+import { getResearchers, setResearchers } from "../../store/reducers/researcherReducer";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { createJob } from "../../store/reducers/jobReducer";
 // This component is used to create a new researcher and save to the database
 const CreateJob = () => {
   const history = useHistory();
+  const dispatch=useDispatch();
   const [job, setJob] = useState({
     title: "",
     description: "",
@@ -14,31 +18,22 @@ const CreateJob = () => {
     year: "",
     researchers: [""],
   });
-
-  const [allResearchers, setAllResearchers] = useState([]);
-  //method appending the form data to the researcher fields
+ const allResearchers:any[]=useSelector((state:any)=>state.researchers.allResearchers)
 
   const submitJob = (event: any) => {
     event.preventDefault();
 
     //Our controller endpoint to save data to the database
-    axios
-      .post("http://localhost:5000/jobs", {
-        title: job.title,
-        description: job.description,
-        jobtype: job.jobtype,
-        file: job.file,
-        year: job.year,
-        researchers: job.researchers,
-      })
-      .then((response) => {
+    dispatch(createJob(job))
+      .then((response:AxiosResponse) => {
         console.log(response);
+        history.push("/careers");
       })
       //Error message in case saving does not work
-      .catch((error) => {
+      .catch((error:AxiosError) => {
         console.log(error);
       });
-    history.push("/careers");
+   
   };
 
   //Function to update the select value
@@ -50,20 +45,14 @@ const CreateJob = () => {
     }));
   };
 
-  const getResearchers = () => {
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        setAllResearchers(Response.data);
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
+  const getAllResearchers=()=>{
+    dispatch(getResearchers())
+    .then((res:AxiosResponse)=>dispatch(setResearchers(res.data)))
+    .catch((err:AxiosError)=>console.log("No reserachers", err))
+  }
 
   useEffect(() => {
-    getResearchers();
+    getAllResearchers();
   }, []);
 
 
@@ -78,7 +67,6 @@ const CreateJob = () => {
 
   //redirect function to be included so that we go back to researcher list each time a new researcher is added
   return (
-    <>
       <main>
         <h1>Create a new job</h1>
         {/*Form used to fill the researcher component*/}
@@ -190,10 +178,8 @@ const CreateJob = () => {
                 {/*Capitalize the first letter*/}
                 {allResearchers.map((item: any) => (
                   <option value={item._id} key={item._id}>
-                    {item.first_name.charAt(0).toUpperCase() +
-                      item.first_name.substring(1)}
-                    {item.last_name.charAt(0).toUpperCase() +
-                      item.last_name.substring(1)}
+                    {item.first_name.charAt(0).toUpperCase() + item.first_name.substring(1) +" "}
+                    {item.last_name.charAt(0).toUpperCase() + item.last_name.substring(1)}
                   </option>
                 ))}
               </select>
@@ -213,7 +199,6 @@ const CreateJob = () => {
           </div>
         </form>
       </main>
-    </>
   );
 };
 

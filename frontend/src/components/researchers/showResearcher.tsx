@@ -1,57 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
 import { Link,useParams } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { useDispatch } from "react-redux";
+import { getResearcher, setResearcher } from "../../store/reducers/researcherReducer";
+import { getArticles, setArticles } from "../../store/reducers/articleReducer";
+import { useSelector } from "react-redux";
 //Component used to display the selected researcher
 
 function ShowResearcher() {
   const {id}:any=useParams();
-  const [researcher, setResearcher] = useState({
-    username: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    password: "",
-    picture: "",
-    biography: "",
-    researchgate: "",
-    googlescholar: "",
-    roles: [""],
-    groups: [""], //List of all users
-    articles: [""],
-  });
+  const dispatch=useDispatch();
+  const articles:any[]=useSelector((state:any)=>state.articles.allArticles);
+  const researcher:any=useSelector((state:any)=>state.researchers.currentResearcher);
   const [groups, setGroups] = useState<any[]>([]);
-  const [articles, setArticles] = useState<any[]>([]);
-  const researcherGroups = groups.filter((group) =>
-    researcher.groups.includes(group._id)
-  );
+  // const [articles, setArticles] = useState<any[]>([]);
+  const researcherGroups = groups.filter((group) =>researcher.groups.includes(group._id));
   const researcherArticles = articles.filter((article) =>
     researcher.articles.includes(article._id)
   );
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  function getResearcher(id: any) {
-    axios
-      .get("http://localhost:5000/researcher/" + id)
-      .then((Response) =>
-        setResearcher({
-          username: Response.data.username,
-          first_name: Response.data.first_name,
-          last_name: Response.data.last_name,
-          email: Response.data.email,
-          password: Response.data.password,
-          picture: Response.data.picture,
-          biography: Response.data.biography,
-          researchgate: Response.data.researchgate,
-          googlescholar: Response.data.googlescholar,
-          roles: Response.data.roles,
-          groups: Response.data.groups,
-          articles: Response.data.articles,
-        })
-      )
-      .catch((error) => {
-        console.log(error);
-      });
+  function getSingleResearcher(id: any) {
+    dispatch(getResearcher(id))
+      .then((Response:AxiosResponse) => dispatch(setResearcher(Response.data)))
+      .catch((error:AxiosError) => console.log(error));
   }
   function getGroups() {
     axios
@@ -62,23 +35,20 @@ function ShowResearcher() {
       });
   }
 
-  function getArticles() {
-    axios
-      .get("http://localhost:5000/articles/")
-      .then((response) => setArticles(response.data))
-      .catch((errors) => {
-        console.log(errors);
-      });
+  function getAllArticles() {
+    dispatch(getArticles())
+      .then((response:AxiosResponse) => setArticles(response.data))
+      .catch((error:AxiosError) =>  console.log(error));
   }
 
   useEffect(() => {
-    getResearcher(id)
+    getSingleResearcher(id)
   }, [id]);
 
 
   useEffect(() => {
     getGroups();
-    getArticles();
+    getAllArticles();
   }, []);
 
   return (

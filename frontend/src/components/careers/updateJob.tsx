@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
 import { Link, useParams, useHistory } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+import { useDispatch } from "react-redux";
+import { getJob } from "../../store/reducers/jobReducer";
+import { updateArticle } from "../../store/reducers/articleReducer";
+import { useSelector } from "react-redux";
+import { getResearchers, setResearchers } from "../../store/reducers/researcherReducer";
 //Component used to display the list of all the groups
 
 const UpdateJob = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const [job, setJob] = useState({
     title: "",
     description: "",
@@ -19,52 +25,29 @@ const UpdateJob = () => {
 
   const { id }: any = useParams();
 
-  const [allResearchers, setAllResearchers] = useState<any[]>([]);
-  const jobContacts: any[] = allResearchers?.filter((author: any) =>
-    job?.researchers.includes(author._id)
-  );
+  const allResearchers:any[]=useSelector((state:any)=>state.researchers.allResearchers);
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  const getJob = (id: any) => {
-    console.log("RS= " + id);
-    // Use of the get controllers through the axios API
-    axios
-      .get("http://localhost:5000/job/" + id)
-      .then((Response) =>
-        setJob({
-          title: Response.data.title,
-          description: Response.data.description,
-          jobtype: Response.data.jobtype,
-          file: Response.data.file,
-          year: Response.data.year,
-          researchers: Response.data.researchers,
-        })
-      )
-      .catch((err) => console.log(err));
+  const getSingleJob = (id: any) => {
+    dispatch(getJob(id))
+      .then((Response: AxiosResponse) =>setJob(Response.data))
+      .catch((err: AxiosError) => console.log(err));
   };
 
   //Function to update the select value
   const submitJob = (event: any) => {
     event.preventDefault();
 
-    //Our controller endpoint to save data to the database
-    axios
-      .put("http://localhost:5000/jobs/" + id, {
-        title: job.title,
-        description: job.description,
-        jobtype: job.jobtype,
-        file: job.file,
-        year: job.year,
-        researchers: job.researchers,
-      })
-      .then((response) => {
+   dispatch(updateArticle(id, job))
+      .then((response:AxiosResponse) => {
         console.log(response);
+        history.push("/careers");
       })
       //Error message in case saving does not work
-      .catch((error) => {
+      .catch((error:AxiosError) => {
         console.log(error);
       });
-    history.push("/careers");
+  
   };
 
   //Function to update the select value
@@ -76,23 +59,18 @@ const UpdateJob = () => {
     }));
   };
 
-  const getResearchers = () => {
-    axios
-      .get("http://localhost:5000/researchers/")
-      .then((Response) => {
-        setAllResearchers(Response.data);
-        console.log("element=" + Response.data);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
   useEffect(() => {
-    getJob(id);
+    getSingleJob(id);
   }, [id]);
 
+  const getAllResearchers=()=>{
+    dispatch(getResearchers())
+    .then((res:AxiosResponse)=>dispatch(setResearchers(res.data)))
+    .catch((err:AxiosError)=>console.log("No reserachers", err))
+  }
+
   useEffect(() => {
-    getResearchers();
+    getAllResearchers();
   }, []);
 
   const onFileChange = (e: any) => {

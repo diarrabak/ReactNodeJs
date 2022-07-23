@@ -1,59 +1,43 @@
 import React, { useEffect, useState } from "react";
 import { withRouter } from "react-router";
 import { Link,useParams } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import { useDispatch } from "react-redux";
+import { getResearchers, setResearchers } from "../../store/reducers/researcherReducer";
+import { getJob, setJob } from "../../store/reducers/jobReducer";
+import { useSelector } from "react-redux";
 //Component used to display the selected researcher
 
 const ShowJob =()=> {
   const {id}:any=useParams();
-  const [job,setJob]=useState({
-    title: "",
-    description:"",
-    jobtype: "",
-    file: "",
-    year: "",
-    researchers: [''],
-  });
+  const dispatch=useDispatch();
+
    
-  const [allResearchers, setAllResearchers]=useState<any[]>([]);
-  const jobContacts:any[]=allResearchers.filter((author:any)=>job?.researchers.includes(author._id));
+  const allResearchers:any[]=useSelector((state:any)=>state.researchers.allResearchers);
+  const job=useSelector((state:any)=>state.jobs.currentJob);
+  const jobContacts:any[]=allResearchers?.filter((author:any)=>job?.researchers.includes(author._id));
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
-  const getJob=(id:any)=> {
-    console.log("RS= " + id);
-    // Use of the get controllers through the axios API
-    axios
-      .get("http://localhost:5000/job/" + id)
-      .then((Response) => 
-       setJob({
-          title: Response.data.title,
-          description: Response.data.description,
-          jobtype: Response.data.jobtype,
-          file: Response.data.file,
-          year: Response.data.year,
-          researchers: Response.data.researchers,
-        })).catch((err)=>console.log(err));
+  const getSingleJob=(id:any)=> {
+    dispatch(getJob(id))
+      .then((Response:AxiosResponse) => dispatch(setJob(Response.data)))
+      .catch((err:AxiosError)=>console.log(err));
 
       }
 
-      const getResearchers=()=>{
-        axios
-        .get("http://localhost:5000/researchers/")
-        .then((Response) => {
-          setAllResearchers(Response.data);
-          console.log("element=" + Response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      }
       useEffect(()=>{
-        getJob(id);
+        getSingleJob(id);
       },[id])
       
-      useEffect(()=>{
-        getResearchers();
-      },[])
+      const getAllResearchers=()=>{
+        dispatch(getResearchers())
+        .then((res:AxiosResponse)=>dispatch(setResearchers(res.data)))
+        .catch((err:AxiosError)=>console.log("No reserachers", err))
+      }
+    
+      useEffect(() => {
+        getAllResearchers();
+      }, []);
 
     return (
       <main>

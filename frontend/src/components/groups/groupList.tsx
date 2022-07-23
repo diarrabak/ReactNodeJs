@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import axios from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import SingleGroup from "./singleGroup";
-
+import ClipLoader from "react-spinners/ClipLoader";
+import { useDispatch, useSelector } from "react-redux";
+import { getGroups, setGroups } from "../../store/reducers/groupReducer";
 
 //Main component of group feature
 function GroupList (){
 
-  const [groups, setGroups]=useState([]);
+  // const [groups, setGroups]=useState([]);
+  const dispatch=useDispatch();
+  const groups:any[]=useSelector((state:any)=>state.groups.allGroups);
+  const [loading, setLoading]=useState(false);
   //When the component is active on the DOM
-  function getGroups() {
-    const url = "http://localhost:5000/groups"; //Url of the controller
-
-    // Use of the get controllers through the axios API
-    axios
-      .get(url)
-      .then((Response) => setGroups(Response.data))
-      .catch((error) => {
+  function getAllGroups() {
+    setLoading(true);
+   dispatch(getGroups())
+      .then((Response:AxiosResponse) => {dispatch(setGroups(Response.data)); setLoading(false);})
+      .catch((error:AxiosError) => {
         console.log(error);
       });
   }
 
  useEffect(()=>{
-   getGroups();
+  getAllGroups();
  },[])
 
     return (
@@ -31,9 +33,15 @@ function GroupList (){
 
         <div className="row">
           {/*List of group from the state variable*/}
-          {groups.map((group, id) => <SingleGroup group={group} key={id} />
+          {loading ? (
+          <div style={{flex:1, display:"flex", justifyContent:"center", alignItems:"center"}}>
+             <ClipLoader color="blue" loading={loading} size={100} />
+          </div>
+        ):(
+          groups.map((group, id) => <SingleGroup group={group} key={id} />
            
-          )}
+          )
+        )}
         </div>
 
         <div className="row">
