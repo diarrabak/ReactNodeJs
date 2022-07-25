@@ -45,12 +45,13 @@ const CreateResearcher = () => {
       })
       .then((response) => {
         console.log(response);
+        history.push("/researchers");
       })
       //Error message in case saving does not work
       .catch((error) => {
         console.log(error);
       });
-    history.push("/researchers");
+   
   }
 
   //Function to update the select value

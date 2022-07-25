@@ -71,12 +71,13 @@ function UpdateGroup() {
       })
       .then((response) => {
         console.log(response);
+        history.push("/groups");
       })
       //Error message in case saving does not work
       .catch((error) => {
         console.log(error);
       });
-    history.push("/groups");
+   
   }
 
   //Function to update the select value

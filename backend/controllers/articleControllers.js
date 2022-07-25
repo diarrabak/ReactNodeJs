@@ -37,7 +37,6 @@ export const getArticleById = (req, res) => {
 
 //Update a particular article
 export const updateArticle = (req, res) => {
-  console.log("params here ",req.params)
   Article.findOneAndUpdate(
     { _id: req.params.ArticleId },
     req.body,

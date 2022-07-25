@@ -29,12 +29,13 @@ function CreateNews() {
       })
       .then((response) => {
         console.log(response);
+        history.push("/news");
       })
       //Error message in case saving does not work
       .catch((error) => {
         console.log(error);
       });
-    history.push("/news");
+    
   }
 
   //Function to update the select value

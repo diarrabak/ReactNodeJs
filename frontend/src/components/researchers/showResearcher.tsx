@@ -15,9 +15,9 @@ function ShowResearcher() {
   const researcher:any=useSelector((state:any)=>state.researchers.currentResearcher);
   const [groups, setGroups] = useState<any[]>([]);
   // const [articles, setArticles] = useState<any[]>([]);
-  const researcherGroups = groups.filter((group) =>researcher.groups.includes(group._id));
+  const researcherGroups = groups.filter((group) =>researcher?.groups?.includes(group._id));
   const researcherArticles = articles.filter((article) =>
-    researcher.articles.includes(article._id)
+    researcher?.articles?.includes(article._id)
   );
   //When the component is active on the DOM
   //The values pulled from database to fill the dropdown menu
