@@ -6,6 +6,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { useDispatch } from "react-redux";
 import { getInfos, setInfos } from "../../store/reducers/newsReducer";
 import { useSelector } from "react-redux";
+import { FaPlusCircle } from "react-icons/fa";
 
 //Main component of group feature
 function NewsList() {
@@ -50,9 +51,9 @@ function NewsList() {
       </div>
 
       <div className="row">
-        <div className="col-12 col-sm-6">
+        <div className="col-12 pt-3">
           {/*Link to the page of new group creation. This must be created in routes in App component*/}
-          <Link to="/addNews"> Add news </Link>
+          <Link className="btn btn-primary" to="/addNews"><FaPlusCircle /> </Link>
         </div>
         {/*Link to the page of group removal*/}
       </div>

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import React from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { deleteJob } from "../../store/reducers/jobReducer";
@@ -35,7 +36,7 @@ function SingleJob(props: any) {
       <div className="row">
         <div className="col-6">
           <button className="btn btn-danger" onClick={() => removeJob(job._id)}>
-            Delete
+           <FaTrash/>
           </button>
         </div>
 
@@ -43,7 +44,7 @@ function SingleJob(props: any) {
           {/*Link to the page of updating a group */}
           <Link className="btn btn-success" to={"/job/" + job._id}>
             {" "}
-            Update{" "}
+           <FaEdit/>
           </Link>
         </div>
       </div>

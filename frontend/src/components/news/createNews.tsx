@@ -4,6 +4,7 @@ import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+
 // This component is used to create a new group and save to the database
 function CreateNews() {
   const history = useHistory();

@@ -1,5 +1,6 @@
 import axios from "axios";
 import React from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { deleteEvent } from "../../store/reducers/eventReducer";
@@ -27,14 +28,14 @@ function SingleEvent(props: any) {
             className="btn btn-danger"
             onClick={() => removeEvent(event._id)}
           >
-            Delete
+         <FaTrash/>
           </button>
         </div>
 
         <div className="col-6">
           {/*Link to the page of updating a group */}
           <Link className="btn btn-success" to={"/event/" + event._id}>
-            Update{" "}
+           <FaEdit/>
           </Link>
         </div>
       </div>

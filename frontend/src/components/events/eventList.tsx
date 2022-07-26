@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { getEvents, setEvents } from "../../store/reducers/eventReducer";
 import { useSelector } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
+import {FaPlusCircle} from "react-icons/fa"; 
 
 //Main component of group feature
 const EventList = () => {
@@ -52,9 +53,9 @@ const EventList = () => {
       </div>
 
       <div className="row">
-        <div className="col-12 col-sm-6">
+        <div className="col-12 pt-3">
           {/*Link to the page of new group creation. This must be created in routes in App component*/}
-          <Link to="/addEvent"> Add event </Link>
+          <Link className="btn btn-primary" to="/addEvent"> <FaPlusCircle /> </Link>
         </div>
         {/*Link to the page of group removal*/}
       </div>

@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import React from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { deleteResearcher } from "../../store/reducers/researcherReducer";
@@ -30,7 +31,7 @@ function SingleResearcher(props: any) {
       <div className="row">
         <div className="col-6">
           <button className="btn btn-danger" onClick={()=>deleteResearcher(researcher._id)}>
-            Delete
+           <FaTrash/>
           </button>
         </div>
 
@@ -38,7 +39,7 @@ function SingleResearcher(props: any) {
           {/*Link to the page of updating a group */}
           <Link className="btn btn-success" to={"/researcher/" + researcher._id}>
             {" "}
-            Update{" "}
+           <FaEdit/>
           </Link>
         </div>
       </div>

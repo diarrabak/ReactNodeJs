@@ -6,6 +6,7 @@ import { getResearchers, setResearchers } from "../../store/reducers/researcherR
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { createJob } from "../../store/reducers/jobReducer";
+
 // This component is used to create a new researcher and save to the database
 const CreateJob = () => {
   const history = useHistory();

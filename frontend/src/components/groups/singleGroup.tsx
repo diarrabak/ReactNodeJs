@@ -1,5 +1,6 @@
 import axios from "axios";
 import React from "react";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { Link, useHistory } from "react-router-dom";
 
 function SingleGroup (props: any) {
@@ -29,7 +30,7 @@ function SingleGroup (props: any) {
             className="btn btn-danger"
             onClick={() => deleteGroup(group._id)}
           >
-            Delete
+          <FaTrash/>
           </button>
         </div>
 
@@ -37,7 +38,7 @@ function SingleGroup (props: any) {
           {/*Link to the page of updating a group */}
           <Link className="btn btn-success" to={"/group/" + group._id}>
             {" "}
-            Update{" "}
+           <FaEdit/>
           </Link>
         </div>
       </div>

@@ -285,8 +285,8 @@ const UpdateResearcher=()=> {
                 <input
                   type="text"
                   className="form-control"
-                  name="gate"
-                  id="gate"
+                  name="researchgate"
+                  id="researchgate"
                   required
                   value={researcher.researchgate}
                   onChange={onChange}
@@ -305,8 +305,8 @@ const UpdateResearcher=()=> {
                 <input
                   type="text"
                   className="form-control"
-                  name="scholar"
-                  id="scholar"
+                  name="googlescholar"
+                  id="googlescholar"
                   required
                   value={researcher.googlescholar}
                   onChange={onChange}

@@ -7,6 +7,7 @@ import {
 } from "../../store/reducers/researcherReducer";
 import { useDispatch, useSelector } from "react-redux";
 import ClipLoader from "react-spinners/ClipLoader";
+import { FaPlusCircle } from "react-icons/fa";
 
 //Main component of researcher feature
 function ResearcherList() {
@@ -60,9 +61,9 @@ function ResearcherList() {
       </div>
 
       <div className="row">
-        <div className="col-12 col-sm-6">
+        <div className="col-12 pt-3">
           {/*Link to the page of new group creation. This must be created in routes in App component*/}
-          <Link to="/addResearcher"> Add new researcher </Link>
+          <Link className="btn btn-primary" to="/addResearcher"> <FaPlusCircle /> </Link>
         </div>
         {/*Link to the page of group removal*/}
       </div>

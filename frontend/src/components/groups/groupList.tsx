@@ -5,6 +5,7 @@ import SingleGroup from "./singleGroup";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { getGroups, setGroups } from "../../store/reducers/groupReducer";
+import { FaPlusCircle } from "react-icons/fa";
 
 //Main component of group feature
 function GroupList (){
@@ -45,9 +46,9 @@ function GroupList (){
         </div>
 
         <div className="row">
-          <div className="col-12 col-sm-6">
+          <div className="col-12 pt-3">
             {/*Link to the page of new group creation. This must be created in routes in App component*/}
-            <Link to="/addGroup"> Add new group </Link>
+            <Link className="btn btn-primary" to="/addGroup"> <FaPlusCircle /> </Link>
           </div>
           {/*Link to the page of group removal*/}
         </div>

@@ -5,6 +5,7 @@ import SingleJob from "./singleJob";
 import { useDispatch, useSelector } from "react-redux";
 import { getJobs, setJobs } from "../../store/reducers/jobReducer";
 import ClipLoader from "react-spinners/ClipLoader";
+import {FaPlusCircle} from "react-icons/fa"; 
 
 //Main component of researcher feature
 const JobList = () => {
@@ -53,9 +54,9 @@ const JobList = () => {
       </div>
 
       <div className="row">
-        <div className="col-12 col-sm-6">
+        <div className="col-12 pt-3">
           {/*Link to the page of new group creation. This must be created in routes in App component*/}
-          <Link to="/addJob"> Add new job </Link>
+          <Link className="btn btn-primary" to="/addJob"> <FaPlusCircle /> </Link>
         </div>
         {/*Link to the page of group removal*/}
       </div>

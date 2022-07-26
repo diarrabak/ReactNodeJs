@@ -4,6 +4,7 @@ import { withRouter } from "react-router";
 import { Link, useHistory } from "react-router-dom";
 import FileBase from "react-file-base64";
 import getFileBase64 from "../../helpers/fileConversion";
+
 // This component is used to create a new researcher and save to the database
 const CreateResearcher = () => {
   const [groups, setGroups] = useState([]);
@@ -227,8 +228,8 @@ const CreateResearcher = () => {
             <input
               type="text"
               className="form-control"
-              name="gate"
-              id="gate"
+              name="researchgate"
+              id="researchgate"
               required
               value={researcher.researchgate}
               onChange={onChange}
@@ -244,8 +245,8 @@ const CreateResearcher = () => {
             <input
               type="text"
               className="form-control"
-              name="scholar"
-              id="scholar"
+              name="googlescholar"
+              id="googlescholar"
               required
               value={researcher.googlescholar}
               onChange={onChange}

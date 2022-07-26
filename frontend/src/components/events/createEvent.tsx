@@ -6,6 +6,7 @@ import getFileBase64 from "../../helpers/fileConversion";
 import { useDispatch } from "react-redux";
 import { createEvent } from "../../store/reducers/eventReducer";
 
+
 // This component is used to create a new group and save to the database
 const CreateEvent = () => {
   const history = useHistory();
